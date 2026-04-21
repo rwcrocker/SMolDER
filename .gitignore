@@ -195,3 +195,8 @@ cython_debug/
 
 # DuckDB Artifacts
 *.db
+*.duckdb
+
+# LLM
+.claude
+data/

@@ -1,15 +1,16 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
 # Copy dependency files and README (required by pyproject.toml)
-COPY pyproject.toml uv.lock README.md ./
+COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-install-project
 
 # Copy application code
-COPY smolder ./smolder
+COPY ./src ./src
 
-CMD ["uv", "run", "shiny", "run", "smolder/app.py", "--host", "0.0.0.0", "--port", "8000"]
+# Ensure default artifact directory exists (can be overridden by volume mounts)
+RUN mkdir -p /app/data

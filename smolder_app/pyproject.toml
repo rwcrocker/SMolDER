@@ -1,0 +1,15 @@
+[project]
+name = "smolder_app"
+version = "0.1.0"
+description = "Python Shiny application for Small Molecule Drugs Exploration"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "duckdb>=1.0.0",
+    "pandas>=2.0.0",
+    "plotly>=5.0.0",
+    "rdkit>=2024.3.1",
+    "shiny>=1.6.0",
+    "shinyswatch>=0.10.0",
+    "shinywidgets>=0.3.0",
+]

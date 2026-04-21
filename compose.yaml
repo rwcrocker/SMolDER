@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  etl:
+    build:
+      context: ./smolder_etl
+      dockerfile: Dockerfile
+    working_dir: /app
+    environment:
+      DBT_PROFILES_DIR: /app/src/smolder_dbt
+      DUCKDB_PATH: /app/data/prod.duckdb
+    volumes:
+      - smolder_data:/app/data
+    command: >
+      sh -lc "
+        uv run python src/smolder_dlt/drugcentral_pipeline.py &&
+        cd src/smolder_dbt &&
+        uv run dbt run &&
+        uv run dbt test
+      "
+    restart: "no"
+
+  app:
+    build:
+      context: ./smolder_app
+      dockerfile: Dockerfile
+    working_dir: /app
+    environment:
+      DUCKDB_PATH: /data/prod.duckdb
+    volumes:
+      - smolder_data:/data:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      etl:
+        condition: service_completed_successfully
+    command: >
+      sh -lc "
+        test -f /data/prod.duckdb || (echo 'Missing /data/prod.duckdb; ETL failed' && exit 1);
+        uv run shiny run src/app.py --host 0.0.0.0 --port 8000
+      "
+
+volumes:
+  smolder_data:
